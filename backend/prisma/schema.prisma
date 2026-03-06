@@ -1,0 +1,305 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TeamMode {
+  KANBAN
+  SCRUM
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum Priority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum SprintStatus {
+  ACTIVE
+  CLOSED
+  PLANNING
+}
+
+enum NotificationType {
+  CARD_MOVED
+  CARD_ASSIGNED
+  CARD_MENTIONED
+  SPRINT_STARTED
+  SPRINT_ENDED
+}
+
+model User {
+  id            String               @id @default(uuid())
+  name          String
+  email         String               @unique
+  avatar        String?
+  passwordHash  String? // Nullable para permitir OAuth puro
+  googleId      String?              @unique
+  appleId       String?              @unique
+  teams         TeamMember[]
+  comments      Comment[]
+  refreshTokens RefreshToken[]
+  resetTokens   PasswordResetToken[]
+  notifications Notification[]
+  attachments   Attachment[]
+  createdAt     DateTime             @default(now())
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  message   String
+  read      Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Team {
+  id               String       @id @default(uuid())
+  name             String
+  description      String?
+  mode             TeamMode     @default(KANBAN)
+  color            String?
+  workloadLimit    Int          @default(5)
+  stagnationFactor Float        @default(1.5)
+  members          TeamMember[]
+  columns          Column[]
+  cards            Card[]
+  sprints          Sprint[]
+  webhooks         Webhook[]
+  createdAt        DateTime     @default(now())
+}
+
+model TeamMember {
+  id     String @id @default(uuid())
+  role   Role   @default(MEMBER)
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  team   Team   @relation(fields: [teamId], references: [id])
+  teamId String
+
+  @@unique([userId, teamId])
+}
+
+model Column {
+  id            String              @id @default(uuid())
+  name          String
+  color         String?
+  order         Int
+  wipLimit      Int?
+  team          Team                @relation(fields: [teamId], references: [id])
+  teamId        String
+  cards         Card[]
+  columnHistory CardColumnHistory[]
+  metrics       ColumnMetrics?
+}
+
+model Card {
+  id                 String    @id @default(uuid())
+  title              String
+  details            String?   @db.Text
+  requirements       String?   @db.Text
+  acceptanceCriteria String?   @db.Text
+  outOfScope         String?   @db.Text
+  testSuggestions    String?   @db.Text
+  url                String?
+  priority           Priority  @default(MEDIUM)
+  dueDate            DateTime?
+  points             Int       @default(0)
+  tags               String[]
+  order              Int
+
+  stagnated       Boolean   @default(false)
+  stagnatedAt     DateTime?
+  ignoreInMetrics Boolean   @default(false)
+
+  column   Column @relation(fields: [columnId], references: [id])
+  columnId String
+  team     Team   @relation(fields: [teamId], references: [id])
+  teamId   String
+
+  assigneeId String?
+
+  comments    Comment[]
+  checklists  Checklist[]
+  sprintCards SprintCard[]
+  attachments Attachment[]
+
+  recurrence     Json? // { frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY', interval: number, endDate?: Date }
+  lastOccurrence DateTime?
+
+  parentId String?
+  parent   Card?   @relation("SubTasks", fields: [parentId], references: [id], onDelete: SetNull)
+  subTasks Card[]  @relation("SubTasks")
+
+  blockedBy     CardDependency[]    @relation("blocked")
+  blocking      CardDependency[]    @relation("blocker")
+  columnHistory CardColumnHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teamId, assigneeId])
+  @@index([teamId, createdAt])
+}
+
+model CardDependency {
+  id        String   @id @default(uuid())
+  blockerId String
+  blocker   Card     @relation("blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   Card     @relation("blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+}
+
+model Attachment {
+  id         String   @id @default(uuid())
+  filename   String
+  url        String
+  size       Int
+  mimeType   String
+  card       Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  cardId     String
+  uploadedBy String // userId
+  user       User     @relation(fields: [uploadedBy], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  card      Card     @relation(fields: [cardId], references: [id])
+  cardId    String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+}
+
+model Sprint {
+  id        String        @id @default(uuid())
+  name      String
+  goal      String?
+  startDate DateTime?
+  endDate   DateTime?
+  status    SprintStatus  @default(PLANNING)
+  team      Team          @relation(fields: [teamId], references: [id])
+  teamId    String
+  cards     SprintCard[]
+  report    SprintReport?
+  createdAt DateTime      @default(now())
+}
+
+model SprintReport {
+  id              String   @id @default(uuid())
+  sprint          Sprint   @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  sprintId        String   @unique
+  velocity        Int      @default(0)
+  completionRate  Float    @default(0)
+  completedCards  Int      @default(0)
+  incompleteCards Int      @default(0)
+  addedMidSprint  Int      @default(0)
+  avgCycleTime    Float? // in hours or days
+  shareToken      String   @unique @default(uuid())
+  generatedAt     DateTime @default(now())
+}
+
+model SprintCard {
+  sprint    Sprint   @relation(fields: [sprintId], references: [id])
+  sprintId  String
+  card      Card     @relation(fields: [cardId], references: [id])
+  cardId    String
+  createdAt DateTime @default(now())
+
+  @@id([sprintId, cardId])
+}
+
+model Checklist {
+  id     String  @id @default(uuid())
+  label  String
+  done   Boolean @default(false)
+  card   Card    @relation(fields: [cardId], references: [id])
+  cardId String
+}
+
+model CardColumnHistory {
+  id        String    @id @default(uuid())
+  cardId    String
+  card      Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  columnId  String
+  column    Column    @relation(fields: [columnId], references: [id])
+  enteredAt DateTime  @default(now())
+  leftAt    DateTime?
+
+  @@index([cardId])
+  @@map("card_column_history")
+}
+
+model Webhook {
+  id        String   @id @default(uuid())
+  teamId    String
+  url       String
+  events    Json // Array of event types: CARD_MOVED, CARD_CREATED, etc.
+  secret    String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  team Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  logs WebhookLog[]
+}
+
+model WebhookLog {
+  id             String   @id @default(uuid())
+  webhookId      String
+  event          String
+  payload        Json
+  responseStatus Int?
+  duration       Int? // milliseconds
+  error          String?
+  success        Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+}
+
+model ColumnMetrics {
+  id        String   @id @default(uuid())
+  columnId  String   @unique
+  column    Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  avgTime   Float // in hours
+  updatedAt DateTime @updatedAt
+}
