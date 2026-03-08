@@ -3,13 +3,14 @@ import { NavLink, Link } from 'react-router-dom';
 import {
     Layout,
     Users,
-    User,
-    Bell,
     Settings,
-    LogOut,
-    Plus,
-    ChevronRight,
-    Hexagon
+    LayoutDashboard,
+    ListTodo,
+    PieChart,
+    Zap,
+    Bell,
+    HelpCircle,
+    Search
 } from 'lucide-react';
 import api from '../services/api';
 import { authService } from '../services/authService';
@@ -22,12 +23,13 @@ interface Team {
 
 const Sidebar: React.FC = () => {
     const [teams, setTeams] = useState<Team[]>([]);
+    const user = authService.getUser() || { name: 'Alex Morgan', role: 'Product Manager' };
 
     useEffect(() => {
         const fetchTeams = async () => {
             try {
                 const response = await api.get('/teams');
-                setTeams(response.data.slice(0, 5)); // Show top 5
+                setTeams(response.data.slice(0, 5));
             } catch (error) {
                 console.error('Erro ao buscar times na sidebar', error);
             }
@@ -35,106 +37,105 @@ const Sidebar: React.FC = () => {
         fetchTeams();
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem('agile_auth_token');
-        window.location.href = '/login';
-    };
+    const navItems = [
+        { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+        { icon: Users, label: 'Projects', path: '/projects' },
+        { icon: Users, label: 'Team', path: '/team' },
+        { icon: Users, label: 'Profile', path: '/profile' },
+    ];
+
+    const workspaceItems = [
+        { icon: ListTodo, label: 'Board', path: '/board' }, // This usually needs a teamId, but showing for layout
+        { icon: Zap, label: 'Sprints', path: '/sprints' },
+        { icon: PieChart, label: 'Reports', path: '/reports' },
+        { icon: Zap, label: 'Automation', path: '/automation' },
+    ];
 
     return (
-        <aside className="w-72 h-screen bg-[#0f172a] border-r border-white/5 flex flex-col fixed left-0 top-0 z-50">
+        <aside className="w-64 h-screen bg-[#f8fafc] border-r border-slate-200 flex flex-col fixed left-0 top-0 z-50">
+            {/* Logo */}
             <div className="p-6 flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-                    <Hexagon className="text-white fill-white/20" size={24} />
+                <div className="w-10 h-10 bg-[#0ea5e9] rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/20">
+                    <svg className="w-6 h-6 text-white fill-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 6.5C4 5.11929 5.11929 4 6.5 4H17.5C18.8807 4 20 5.11929 20 6.5V17.5C20 18.8807 18.8807 20 17.5 20H6.5C5.11929 20 4 18.8807 4 17.5V6.5Z" />
+                        <rect x="7" y="7" width="4" height="4" rx="1" fill="#0ea5e9" stroke="white" strokeWidth="1" />
+                        <rect x="13" y="13" width="4" height="4" rx="1" fill="#0ea5e9" stroke="white" strokeWidth="1" />
+                    </svg>
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                    AgileApp
-                </span>
+                <span className="text-xl font-bold text-slate-900 tracking-tight">AgileApp</span>
             </div>
 
-            <nav className="flex-1 px-4 py-6 space-y-8 overflow-y-auto custom-scrollbar">
-                <div className="space-y-1">
-                    <span className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Geral</span>
-                    <NavLink
-                        to="/"
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive ? 'bg-primary-500/10 text-primary-400' : 'text-slate-400 hover:text-white hover:bg-white/5'
-                            }`
-                        }
-                    >
-                        <Layout size={20} />
-                        <span className="font-medium">Dashboard</span>
-                        <ChevronRight size={14} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </NavLink>
-                    <NavLink
-                        to="/notifications"
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive ? 'bg-primary-500/10 text-primary-400' : 'text-slate-400 hover:text-white hover:bg-white/5'
-                            }`
-                        }
-                    >
-                        <Bell size={20} />
-                        <span className="font-medium">Notificações</span>
-                    </NavLink>
-                </div>
-
-                <div className="space-y-1">
-                    <div className="px-3 flex justify-between items-center mb-2">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Seus Times</span>
-                        <button className="text-primary-400 hover:text-primary-300">
-                            <Plus size={14} />
-                        </button>
-                    </div>
-                    {teams.map(team => (
+            <div className="flex-1 px-4 py-4 space-y-8 overflow-y-auto custom-scrollbar">
+                {/* Main Nav */}
+                <nav className="space-y-1">
+                    {navItems.map((item) => (
                         <NavLink
-                            key={team.id}
-                            to={`/teams/${team.id}`}
+                            key={item.label}
+                            to={item.path}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive ? 'bg-primary-500/10 text-primary-400' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive
+                                    ? 'bg-[#e0f2fe] text-[#0ea5e9]'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                                 }`
                             }
                         >
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: team.color || '#3b82f6' }} />
-                            <span className="font-medium truncate">{team.name}</span>
+                            <item.icon size={20} className={({ isActive }: any) => isActive ? 'text-[#0ea5e9]' : 'text-slate-400 group-hover:text-slate-600'} />
+                            <span className="font-semibold text-sm">{item.label}</span>
                         </NavLink>
                     ))}
-                    {teams.length === 0 && (
-                        <p className="px-3 text-xs text-slate-600 italic">Nenhum time ainda.</p>
-                    )}
+                </nav>
+
+                {/* Workspace Section */}
+                <div className="space-y-1">
+                    <span className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Workspace</span>
+                    {workspaceItems.map((item) => (
+                        <NavLink
+                            key={item.label}
+                            to={item.path}
+                            className={({ isActive }) =>
+                                `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive
+                                    ? 'bg-[#e0f2fe] text-[#0ea5e9]'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`
+                            }
+                        >
+                            <item.icon size={20} className="text-slate-400 group-hover:text-slate-600" />
+                            <span className="font-semibold text-sm">{item.label}</span>
+                        </NavLink>
+                    ))}
                 </div>
 
+                {/* Bottom Links */}
                 <div className="space-y-1">
-                    <span className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sua Conta</span>
-                    <NavLink
-                        to="/profile"
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive ? 'bg-primary-500/10 text-primary-400' : 'text-slate-400 hover:text-white hover:bg-white/5'
-                            }`
-                        }
-                    >
-                        <User size={20} />
-                        <span className="font-medium">Meu Perfil</span>
-                    </NavLink>
                     <NavLink
                         to="/settings"
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive ? 'bg-primary-500/10 text-primary-400' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive
+                                ? 'bg-[#e0f2fe] text-[#0ea5e9]'
+                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                             }`
                         }
                     >
-                        <Settings size={20} />
-                        <span className="font-medium">Configurações</span>
+                        <Settings size={20} className="text-slate-400 group-hover:text-slate-600" />
+                        <span className="font-semibold text-sm">Settings</span>
                     </NavLink>
                 </div>
-            </nav>
+            </div>
 
-            <div className="p-4 border-t border-white/5">
-                <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-400/5 transition-all font-medium"
-                >
-                    <LogOut size={20} />
-                    Sair da Conta
-                </button>
+            {/* User Profile Footer */}
+            <div className="p-4 border-t border-slate-100 bg-white">
+                <div className="flex items-center gap-3 p-2">
+                    <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+                        <img src={`https://ui-avatars.com/api/?name=${user.name || 'User'}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-900 truncate">{user.name || 'Alex Morgan'}</p>
+                        <p className="text-[10px] font-medium text-slate-400 truncate">{user.role || 'Pro Plan'}</p>
+                    </div>
+                    <button className="text-slate-400 hover:text-slate-600">
+                        <Settings size={18} />
+                    </button>
+                </div>
             </div>
         </aside>
     );

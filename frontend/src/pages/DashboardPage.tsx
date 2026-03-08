@@ -1,144 +1,198 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Users, Layout, Rocket, Target, ArrowRight } from 'lucide-react';
+import {
+    Users,
+    Zap,
+    BarChart3,
+    Clock,
+    Plus,
+    Filter,
+    MoreVertical,
+    TrendingUp,
+    CheckCircle2,
+    AlertCircle
+} from 'lucide-react';
 import api from '../services/api';
 import TeamModal from '../components/TeamModal';
+import { motion } from 'framer-motion';
 
 interface Team {
     id: string;
     name: string;
     description: string;
-    mode: 'KANBAN' | 'SCRUM';
+    methodology: 'SCRUM' | 'KANBAN';
     color: string;
 }
 
 const DashboardPage: React.FC = () => {
     const [teams, setTeams] = useState<Team[]>([]);
+    const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const navigate = useNavigate();
-
-    const fetchTeams = async () => {
-        setIsLoading(true);
-        try {
-            const response = await api.get('/teams');
-            setTeams(response.data);
-        } catch (error) {
-            console.error('Erro ao buscar times', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     useEffect(() => {
         fetchTeams();
     }, []);
 
-    const handleCreateSuccess = (newTeam: any) => {
-        setIsModalOpen(false);
-        navigate(`/teams/${newTeam.id}`);
+    const fetchTeams = async () => {
+        try {
+            const response = await api.get('/teams');
+            setTeams(response.data);
+        } catch (error) {
+            console.error('Erro ao carregar times', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    return (
-        <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="space-y-2">
-                    <h1 className="text-5xl font-black text-white tracking-tighter">
-                        Seus <span className="text-primary-500">Projetos</span>
-                    </h1>
-                    <p className="text-slate-400 text-lg font-medium">
-                        Você tem {teams.length} {teams.length === 1 ? 'time ativo' : 'times ativos'} no momento.
-                    </p>
-                </div>
+    const metrics = [
+        { label: 'Total Projects', value: '12', icon: BarChart3, color: 'text-blue-500', bg: 'bg-blue-50', change: '+2.5%', trend: 'up' },
+        { label: 'Active Sprints', value: '4', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50', change: 'Stable', trend: 'neutral' },
+        { label: 'Team Velocity', value: '48', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50', change: '+12%', trend: 'up' },
+        { label: 'Cycle Time', value: '3.2d', icon: Clock, color: 'text-purple-500', bg: 'bg-purple-50', change: '-0.5d', trend: 'up' },
+    ];
 
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="group flex items-center gap-3 bg-primary-600 hover:bg-primary-700 px-8 py-4 rounded-2xl font-bold transition-all shadow-xl shadow-primary-500/20 active:scale-95"
-                >
-                    <Plus size={22} className="group-hover:rotate-90 transition-transform" />
-                    Novo Time
-                </button>
+    return (
+        <div className="space-y-10">
+            {/* Header */}
+            <header className="flex justify-between items-end">
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Enterprise Overview</h1>
+                    <p className="text-slate-500 font-medium">Manage and track your team's performance globally.</p>
+                </div>
+                <div className="flex gap-3">
+                    <button className="px-4 py-2.5 border border-slate-200 rounded-xl text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+                        <Filter size={18} />
+                        Filter
+                    </button>
+                    <button
+                        onClick={() => setIsTeamModalOpen(true)}
+                        className="px-4 py-2.5 bg-[#0ea5e9] text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 flex items-center gap-2"
+                    >
+                        <Plus size={18} />
+                        New Project
+                    </button>
+                </div>
             </header>
 
-            {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="h-64 bg-slate-800/30 rounded-3xl animate-pulse border border-white/5" />
-                    ))}
-                </div>
-            ) : teams.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 px-6 bg-slate-800/20 border border-dashed border-white/10 rounded-[3rem] text-center">
-                    <div className="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mb-6 text-slate-500">
-                        <Rocket size={40} />
-                    </div>
-                    <h2 className="text-3xl font-bold text-white mb-3">Tudo pronto para começar?</h2>
-                    <p className="text-slate-400 max-w-md mb-10 text-lg">
-                        Crie seu primeiro ambiente de trabalho para começar a gerenciar suas atividades com agilidade.
-                    </p>
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-3 bg-white text-slate-950 px-10 py-5 rounded-2xl font-black hover:bg-primary-400 hover:text-white transition-all shadow-2xl"
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {metrics.map((metric, index) => (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        key={metric.label}
+                        className="p-6 bg-white border border-slate-100 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow group cursor-default"
                     >
-                        Criar Novo Ambiente
-                        <ArrowRight size={20} />
-                    </button>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {teams.map(team => (
-                        <Link
-                            key={team.id}
-                            to={`/teams/${team.id}`}
-                            className="group relative bg-slate-800/40 border border-white/5 p-8 rounded-[2.5rem] hover:bg-slate-800/60 transition-all hover:border-primary-500/30 hover:-translate-y-2"
-                        >
-                            <div className="absolute top-8 right-8 w-3 h-3 rounded-full blur-[2px]" style={{ backgroundColor: team.color || '#3b82f6' }} />
-
-                            <div className="flex justify-between items-start mb-6">
-                                <div className="p-4 rounded-2xl bg-slate-700/30 group-hover:bg-primary-500/20 transition-all">
-                                    <Users size={28} className="group-hover:text-primary-400 transition-colors" />
-                                </div>
-                                <span className={`text-[10px] font-black tracking-widest px-3 py-1 rounded-lg ${team.mode === 'KANBAN' ? 'bg-orange-500/10 text-orange-400' : 'bg-blue-500/10 text-blue-400'
-                                    }`}>
-                                    {team.mode}
-                                </span>
+                        <div className="flex justify-between items-start">
+                            <div className={`p-3 rounded-2xl ${metric.bg} ${metric.color} group-hover:scale-110 transition-transform`}>
+                                <metric.icon size={24} />
                             </div>
-
-                            <h2 className="text-2xl font-bold mb-2 group-hover:text-primary-400 transition-colors">{team.name}</h2>
-                            <p className="text-slate-500 text-sm mb-8 line-clamp-2 font-medium leading-relaxed">
-                                {team.description || 'Nenhuma descrição fornecida para este projeto.'}
-                            </p>
-
-                            <div className="flex items-center gap-6 pt-6 border-t border-white/5 text-xs font-bold text-slate-500 uppercase tracking-tight">
-                                <div className="flex items-center gap-2 group-hover:text-slate-300">
-                                    <Layout size={16} className="text-slate-600" />
-                                    <span>Board Ativo</span>
-                                </div>
-                                <div className="flex items-center gap-2 group-hover:text-slate-300">
-                                    <Target size={16} className="text-slate-600" />
-                                    <span>{team.mode === 'KANBAN' ? 'Fluxo Contínuo' : 'Sprints'}</span>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="flex flex-col items-center justify-center gap-4 bg-slate-800/10 border-2 border-dashed border-white/5 p-8 rounded-[2.5rem] hover:border-primary-500/40 hover:bg-slate-800/30 transition-all text-slate-500 hover:text-primary-400 group"
-                    >
-                        <div className="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Plus size={32} />
+                            <span className={`text-[10px] font-black px-2 py-1 rounded-full ${metric.trend === 'up' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-500'
+                                }`}>
+                                {metric.change}
+                            </span>
                         </div>
-                        <span className="font-bold text-lg">Adicionar Ambiente</span>
-                    </button>
-                </div>
-            )}
+                        <div className="mt-4">
+                            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">{metric.label}</p>
+                            <h3 className="text-3xl font-black text-slate-900 mt-1">{metric.value}</h3>
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
 
-            {isModalOpen && (
-                <TeamModal
-                    onClose={() => setIsModalOpen(false)}
-                    onSuccess={handleCreateSuccess}
-                />
-            )}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Active Projects List */}
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="flex justify-between items-center px-2">
+                        <h2 className="text-xl font-black text-slate-900 tracking-tight">Active Projects</h2>
+                        <button className="text-[#0ea5e9] text-sm font-bold hover:underline">View all</button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {teams.map((team, index) => (
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                key={team.id}
+                                className="p-5 bg-white border border-slate-100 rounded-3xl hover:border-sky-200 transition-all group cursor-pointer"
+                                onClick={() => window.location.href = `/teams/${team.id}`}
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg" style={{ backgroundColor: team.color || '#0ea5e9', boxShadow: `0 8px 16px -4px ${team.color}40` }}>
+                                        {team.name.charAt(0)}
+                                    </div>
+                                    <button className="text-slate-300 hover:text-slate-600"><MoreVertical size={18} /></button>
+                                </div>
+                                <div className="mt-4 space-y-1">
+                                    <h4 className="font-black text-slate-900 truncate group-hover:text-[#0ea5e9] transition-colors">{team.name}</h4>
+                                    <p className="text-slate-400 text-sm line-clamp-1">{team.description || 'No description provided.'}</p>
+                                </div>
+                                <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-50">
+                                    <div className="flex -space-x-2">
+                                        {[1, 2, 3].map(i => (
+                                            <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
+                                                <img src={`https://i.pravatar.cc/150?u=${team.id}${i}`} alt="Avatar" className="w-full h-full object-cover" />
+                                            </div>
+                                        ))}
+                                        <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400">
+                                            +4
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                        <CheckCircle2 size={12} className="text-emerald-500" />
+                                        12/15 Tasks
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                        {!isLoading && teams.length === 0 && (
+                            <div className="col-span-2 p-12 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-200 space-y-4">
+                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                                    <AlertCircle size={32} className="text-slate-300" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h3 className="font-black text-slate-900">No projects found</h3>
+                                    <p className="text-slate-400 text-sm">Create your first team to start managing projects.</p>
+                                </div>
+                                <button onClick={() => setIsTeamModalOpen(true)} className="px-6 py-3 bg-[#0ea5e9] text-white rounded-xl font-bold hover:bg-sky-600 transition-all">
+                                    Get Started
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Activity Feed */}
+                <div className="space-y-6">
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight px-2">Recent Activity</h2>
+                    <div className="bg-white border border-slate-100 rounded-[2.5rem] p-6 shadow-sm divide-y divide-slate-50">
+                        {[
+                            { user: 'Liam Wilson', action: 'moved Task #102 to', target: 'Done', time: '2m ago' },
+                            { user: 'Emma Stone', action: 'commented on', target: 'UX Bug', time: '15m ago' },
+                            { user: 'AgileApp', action: 'auto-archived sprint', target: 'V1.2', time: '1h ago' },
+                        ].map((item, i) => (
+                            <div key={i} className="py-4 first:pt-0 last:pb-0 flex gap-4">
+                                <div className="w-10 h-10 rounded-full bg-slate-100 shrink-0 overflow-hidden">
+                                    <img src={`https://i.pravatar.cc/150?u=${i}`} alt="User" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-sm font-bold text-slate-900">
+                                        {item.user} <span className="text-slate-400 font-medium">{item.action}</span> <span className="text-[#0ea5e9]">{item.target}</span>
+                                    </p>
+                                    <span className="text-[10px] font-bold text-slate-300 uppercase">{item.time}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <TeamModal
+                isOpen={isTeamModalOpen}
+                onClose={() => setIsTeamModalOpen(false)}
+                onSuccess={fetchTeams}
+            />
         </div>
     );
 };
