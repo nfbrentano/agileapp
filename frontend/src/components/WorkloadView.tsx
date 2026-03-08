@@ -19,7 +19,7 @@ interface MemberWorkload {
     };
 }
 
-const WorkloadView: React.FC<{ teamId: string, onMoveCard: any, onCardClick: any }> = ({ teamId, onMoveCard, onCardClick }) => {
+const WorkloadView: React.FC<{ teamId: string, onMoveCard: any, onCardClick: any }> = ({ teamId, onCardClick }) => {
     const [workloadData, setWorkloadData] = useState<{ workloadLimit: number, members: MemberWorkload[] } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 

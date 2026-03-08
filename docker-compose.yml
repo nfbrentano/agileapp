@@ -35,9 +35,9 @@ services:
     depends_on:
       - db
       - minio
-    # volumes:
-    #   - ./backend:/app:delegated
-    #   - /app/node_modules
+    volumes:
+      - ./backend:/app:delegated
+      - /app/node_modules
 
   web:
     build: ./frontend
@@ -47,9 +47,9 @@ services:
       - "3000:3000"
     depends_on:
       - api
-    # volumes:
-    #   - ./frontend:/app
-    #   - /app/node_modules
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
   minio:
     image: minio/minio

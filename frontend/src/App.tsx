@@ -11,12 +11,13 @@ import NotificationsPage from './pages/NotificationsPage';
 import SprintReportPage from './pages/SprintReportPage';
 import PublicReportPage from './pages/PublicReportPage';
 import { authService } from './services/authService';
+import MainLayout from './layouts/MainLayout';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (!authService.isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
-  return <>{children}</>;
+  return <MainLayout>{children}</MainLayout>;
 };
 
 function App() {
@@ -76,3 +77,4 @@ function App() {
 }
 
 export default App;
+

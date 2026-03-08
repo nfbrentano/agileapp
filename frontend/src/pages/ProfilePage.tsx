@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, User, Mail, Shield, Chrome, Apple, ArrowLeft, LogOut, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { authService, UserProfile } from '../services/authService';
+import { authService } from '../services/authService';
+import type { UserProfile } from '../services/authService';
 
 const ProfilePage: React.FC = () => {
     const [profile, setProfile] = useState<UserProfile | null>(null);

@@ -167,17 +167,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ teamId }) => {
                         <h3 className="text-3xl font-bold text-white mt-1">{metrics?.medianLeadTime.toFixed(1)}h</h3>
                     </div>
                 </div>
-                <div className="bg-slate-900/40 p-6 rounded-3xl border border-white/5 hover:border-white/10 transition-all group">
-                    <div className="flex items-start justify-between">
-                        <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-400 group-hover:scale-110 transition-transform">
-                            <Target size={24} />
-                        </div>
-                    </div>
-                    <div className="mt-4">
-                        <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">P85 Lead Time</p>
-                        <h3 className="text-3xl font-bold text-white mt-1">{metrics?.p85LeadTime.toFixed(1)}h</h3>
-                    </div>
-                </div>
+
             </div>
 
             {/* Scatter Plot */}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Search, Filter, Plus, ChevronLeft, Layout as LayoutIcon, Users, BarChart2, Settings, CheckSquare } from 'lucide-react';
+import { Search, Plus, ChevronLeft, Layout as LayoutIcon, Users, BarChart2, Settings, CheckSquare } from 'lucide-react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import DroppableColumn from '../components/DroppableColumn';
@@ -106,12 +106,9 @@ const BoardPage: React.FC = () => {
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="h-screen bg-[#0f172a] text-white flex flex-col">
-                <header className="p-4 border-b border-white/5 flex justify-between items-center bg-[#1e293b]/50 backdrop-blur-md z-10">
+                <header className="p-4 border-b border-white/5 flex justify-between items-center bg-[#1e293b]/50 backdrop-blur-md z-10 sticky top-0">
                     <div className="flex items-center gap-4">
-                        <Link to="/" className="p-2 hover:bg-white/5 rounded-lg transition-colors group">
-                            <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                        </Link>
-                        <div className="flex flex-col">
+                        <div className="flex flex-col ml-2">
                             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{team.mode} MODE</span>
                             <h1 className="text-xl font-bold tracking-tight">{team.name}</h1>
                         </div>
@@ -175,9 +172,7 @@ const BoardPage: React.FC = () => {
                                 onClick={async () => {
                                     if (window.confirm(`Deseja fechar a sprint "${team.sprints[0].name}"? \nIsso irá gerar o relatório e mover os cards pendentes para o backlog.`)) {
                                         try {
-                                            const { data } = await api.post(`/sprints/${team.sprints[0].id}/close`);
-                                            // Redirecionar para o relatório (precisamos do ID do relatório)
-                                            // Como o backend retorna { message, sprint }, vamos buscar o relatório gerado
+                                            await api.post(`/sprints/${team.sprints[0].id}/close`);
                                             const reportRes = await api.get(`/reports/team/${team.id}`);
                                             if (reportRes.data.length > 0) {
                                                 navigate(`/reports/${reportRes.data[0].id}`);
@@ -195,11 +190,9 @@ const BoardPage: React.FC = () => {
                                 Fechar Sprint
                             </button>
                         )}
-                        <Link to="/profile" className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all">
-                            <User size={20} />
-                        </Link>
                     </div>
                 </header>
+
 
                 <main className="flex-1 overflow-hidden flex flex-col">
                     {view === 'BOARD' ? (

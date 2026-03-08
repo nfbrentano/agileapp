@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Paperclip, X, FileText, ImageIcon, Download, Trash2, Loader2 } from 'lucide-react';
-import { attachmentService, Attachment } from '../services/attachmentService';
+import { attachmentService } from '../services/attachmentService';
+import type { Attachment } from '../services/attachmentService';
 
 interface FileUploaderProps {
     cardId: string;
