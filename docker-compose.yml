@@ -36,7 +36,7 @@ services:
       - db
       - minio
     volumes:
-      - ./backend:/app:delegated
+      # - ./backend:/app:cached
       - /app/node_modules
 
   web:
@@ -48,7 +48,7 @@ services:
     depends_on:
       - api
     volumes:
-      - ./frontend:/app
+      # - ./frontend:/app:cached
       - /app/node_modules
 
   minio:
