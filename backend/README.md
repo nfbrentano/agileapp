@@ -127,12 +127,12 @@ npm run dev       # desenvolvimento (hot reload)
 npm run build     # build de produção
 npm run start     # inicia o servidor em produção
 Troubleshooting
-Problema	Solução
-Erro de conexão no banco	Confirme DATABASE_URL e se o Postgres está de pé no docker-compose
-Prisma falhando	Valide se rodou prisma migrate dev e se o schema aponta para o banco correto
-401 em rotas autenticadas	Verifique se o token JWT está sendo enviado no header Authorization: Bearer <token>
-Webhooks não chegando	Verifique WEBHOOK_SECRET, URL de destino, retries e se o endpoint responde em menos de 5s
-Jobs não executando	Confirme se o worker/scheduler está ativo e se Redis está acessível
-Porta 3000 ocupada	Finalize o processo ou altere a porta nas variáveis de ambiente
-text
+| Problema                  | Solução                                                                                   |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| Erro de conexão no banco  | Confirme DATABASE_URL e se o Postgres está de pé no docker-compose                        |
+| Prisma falhando           | Valide se rodou prisma migrate dev e se o schema aponta para o banco correto              |
+| 401 em rotas autenticadas | Verifique se o token JWT está sendo enviado no header Authorization: Bearer <token>       |
+| Webhooks não chegando     | Verifique WEBHOOK_SECRET, URL de destino, retries e se o endpoint responde em menos de 5s |
+| Jobs não executando       | Confirme se o worker/scheduler está ativo e se Redis está acessível                       |
+| Porta 3000 ocupada        | Finalize o processo ou altere a porta nas variáveis de ambiente                           |
 
