@@ -71,3 +71,28 @@ export default defineConfig([
   },
 ])
 ```
+
+
+
+# AgileApp — Frontend
+
+Frontend do **AgileApp**, a interface web para gerenciamento de projetos ágeis (Kanban + Scrum), com foco em automação e métricas. Este projeto faz parte do monorepo `agileapp` e conversa com o backend via API. (Veja a visão geral na raiz do repositório.)
+
+## Stack
+
+- React + TypeScript
+- Vite
+- Tailwind CSS
+
+## Pré-requisitos
+
+- Node.js (LTS recomendado)
+- npm
+- (Opcional, mas recomendado) Docker + Docker Compose, para subir os serviços de infraestrutura do monorepo
+
+## Como rodar (desenvolvimento)
+
+1) Na raiz do monorepo, crie seu `.env` a partir do exemplo:
+
+```bash
+cp .env.example .env
