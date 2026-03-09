@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
-    Layout,
+    LayoutDashboard,
     Users,
     Settings,
-    LayoutDashboard,
     ListTodo,
     PieChart,
     Zap,
-    Bell,
-    HelpCircle,
-    Search
 } from 'lucide-react';
 import api from '../services/api';
 import { authService } from '../services/authService';
@@ -79,7 +75,7 @@ const Sidebar: React.FC = () => {
                                 }`
                             }
                         >
-                            <item.icon size={20} className={({ isActive }: any) => isActive ? 'text-[#0ea5e9]' : 'text-slate-400 group-hover:text-slate-600'} />
+                            <item.icon size={20} className="text-slate-400 group-hover:text-slate-600" />
                             <span className="font-semibold text-sm">{item.label}</span>
                         </NavLink>
                     ))}

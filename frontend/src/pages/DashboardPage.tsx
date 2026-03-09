@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Users,
     Zap,
     BarChart3,
     Clock,
@@ -14,6 +13,7 @@ import {
 import api from '../services/api';
 import TeamModal from '../components/TeamModal';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 interface Team {
     id: string;
@@ -105,7 +105,9 @@ const DashboardPage: React.FC = () => {
                 <div className="lg:col-span-2 space-y-6">
                     <div className="flex justify-between items-center px-2">
                         <h2 className="text-xl font-black text-slate-900 tracking-tight">Active Projects</h2>
-                        <button className="text-[#0ea5e9] text-sm font-bold hover:underline">View all</button>
+                        <Link to="/projects" className="text-[#0ea5e9] text-sm font-bold hover:underline">
+                            View all
+                        </Link>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

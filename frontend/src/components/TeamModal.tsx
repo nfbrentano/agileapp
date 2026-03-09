@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { X, Users, Type, Palette, Layout, Settings, Target } from 'lucide-react';
+import { X, Type, Layout, Settings, Target, Plus } from 'lucide-react';
 import api from '../services/api';
 
 interface TeamModalProps {
+    isOpen: boolean;
     onClose: () => void;
     onSuccess: (team: any) => void;
 }
 
-const TeamModal: React.FC<TeamModalProps> = ({ onClose, onSuccess }) => {
+const TeamModal: React.FC<TeamModalProps> = ({ isOpen, onClose, onSuccess }) => {
+    if (!isOpen) return null;
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [mode, setMode] = useState<'KANBAN' | 'SCRUM'>('KANBAN');

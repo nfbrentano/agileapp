@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Search, Plus, Layout as LayoutIcon, Users, BarChart2, Settings, CheckSquare, Filter } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Search, Plus, Layout as LayoutIcon, Users, BarChart2, Filter } from 'lucide-react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import DroppableColumn from '../components/DroppableColumn';
@@ -10,7 +10,6 @@ import MetricsDashboard from '../components/MetricsDashboard';
 import WebhookSettings from '../components/WebhookSettings';
 import WorkloadView from '../components/WorkloadView';
 import api from '../services/api';
-import { motion } from 'framer-motion';
 
 interface Team {
     id: string;

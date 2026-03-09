@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, LogIn, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '../services/authService';
 import { motion } from 'framer-motion';
 
@@ -107,7 +107,7 @@ const LoginPage: React.FC = () => {
                         <div className="space-y-2">
                             <div className="flex justify-between items-center ml-1">
                                 <label className="text-sm font-bold text-slate-700">Password</label>
-                                <Link to="/forgot-password" weights="bold" className="text-sm text-sky-500 hover:text-sky-600 font-bold transition-colors">
+                                <Link to="/forgot-password" className="text-sm text-sky-500 hover:text-sky-600 font-bold transition-colors">
                                     Forgot password?
                                 </Link>
                             </div>

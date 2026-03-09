@@ -10,6 +10,7 @@ import ProfilePage from './pages/ProfilePage';
 import NotificationsPage from './pages/NotificationsPage';
 import SprintReportPage from './pages/SprintReportPage';
 import PublicReportPage from './pages/PublicReportPage';
+import ProjectsPage from './pages/ProjectsPage';
 import { authService } from './services/authService';
 import MainLayout from './layouts/MainLayout';
 
@@ -67,6 +68,14 @@ function App() {
           element={
             <ProtectedRoute>
               <SprintReportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <ProjectsPage />
             </ProtectedRoute>
           }
         />

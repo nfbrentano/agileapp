@@ -12,11 +12,20 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// Interceptor para tratar erro 401 e tentar refresh token
+// Interceptor para tratar erro 401 e tentar refresh token, ou 403 (token inválido)
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+        
+        // 403 - Token inválido ou expirado, faz logout
+        if (error.response?.status === 403) {
+            localStorage.clear();
+            window.location.href = '/login';
+            return Promise.reject(error);
+        }
+        
+        // 401 - Tentar refresh token
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             const refreshToken = localStorage.getItem('agile_auth_refresh');
