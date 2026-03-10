@@ -13,6 +13,7 @@ import sprintRoutes from './routes/sprint.routes';
 import metricsRoutes from './routes/metrics.routes';
 import webhookRoutes from './routes/webhook.routes';
 import reportRoutes from './routes/report.routes';
+import activityRoutes from './routes/activity.routes';
 import { setupRecurrenceJob } from './services/recurrence.service';
 import { startJobs as startStagnationJobs } from './jobs/stagnation.job';
 
@@ -41,6 +42,7 @@ app.use('/api/sprints', sprintRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/activities', activityRoutes);
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });

@@ -3,6 +3,7 @@ import prisma from '../config/prisma';
 import { createNotification } from '../services/notification.service';
 import { WebhookService, WebhookEvent } from '../services/webhook.service';
 import { NotificationType } from '@prisma/client';
+import { createActivity } from './activity.controller';
 
 export const createSprint = async (req: Request, res: Response) => {
     const { teamId, name, goal, startDate, endDate } = req.body;
@@ -60,6 +61,16 @@ export const startSprint = async (req: Request, res: Response) => {
             sprintId: updatedSprint.id,
             name: updatedSprint.name
         });
+
+        // Create activity
+        if (actorId) {
+            await createActivity({
+                type: 'SPRINT_STARTED',
+                userId: actorId,
+                teamId: updatedSprint.teamId,
+                description: `started sprint "${updatedSprint.name}"`
+            });
+        }
 
         res.json(updatedSprint);
     } catch (error) {
@@ -187,6 +198,16 @@ export const closeSprint = async (req: Request, res: Response) => {
             name: sprint.name,
             report: { velocity, completionRate }
         });
+
+        // Create activity
+        if (actorId) {
+            await createActivity({
+                type: 'SPRINT_ENDED',
+                userId: actorId,
+                teamId: sprint.teamId,
+                description: `closed sprint "${sprint.name}" with ${completedCards.length}/${sprintCards.length} completed cards`
+            });
+        }
 
         res.json({ message: 'Sprint fechada com sucesso', sprint: closedSprint });
     } catch (error) {

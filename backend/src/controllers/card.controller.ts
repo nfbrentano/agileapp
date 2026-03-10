@@ -4,6 +4,7 @@ import { createNotification } from '../services/notification.service';
 import { checkBlockers } from '../services/dependency.service';
 import { WebhookService, WebhookEvent } from '../services/webhook.service';
 import { NotificationType } from '@prisma/client';
+import { createActivity } from './activity.controller';
 
 export const createCard = async (req: Request, res: Response) => {
     const {
@@ -52,6 +53,17 @@ export const createCard = async (req: Request, res: Response) => {
         // Dispatch Webhook
         const actorId = (req as any).user?.id;
         WebhookService.dispatch(teamId as string, WebhookEvent.CARD_CREATED, actorId, card);
+
+        // Create activity
+        if (actorId) {
+            await createActivity({
+                type: 'CARD_CREATED',
+                userId: actorId,
+                teamId: teamId as string,
+                cardId: card.id,
+                description: `created card "${card.title}"`
+            });
+        }
 
         res.status(201).json(card);
     } catch (error) {
@@ -209,6 +221,21 @@ export const moveCard = async (req: Request, res: Response) => {
             WebhookService.dispatch(card.teamId, WebhookEvent.CARD_COMPLETED, performersId, card);
         }
 
+        // Create activity for card move
+        if (performersId && isMovingToNewColumn) {
+            const fromColumn = await prisma.column.findUnique({ where: { id: currentCard?.columnId } });
+            const toColumn = await prisma.column.findUnique({ where: { id: columnId as string } });
+            
+            await createActivity({
+                type: 'CARD_MOVED',
+                userId: performersId,
+                teamId: card.teamId,
+                cardId: card.id,
+                description: `moved "${card.title}" to ${toColumn?.name || 'another column'}`,
+                metadata: { fromColumn: fromColumn?.name, toColumn: toColumn?.name }
+            });
+        }
+
         res.json(card);
     } catch (error) {
         console.error('Erro ao mover card:', error);
@@ -296,6 +323,16 @@ export const deleteCard = async (req: Request, res: Response) => {
             cardId: card.id,
             title: card.title
         });
+
+        // Create activity
+        if (actorId) {
+            await createActivity({
+                type: 'CARD_DELETED',
+                userId: actorId,
+                teamId: card.teamId,
+                description: `deleted card "${card.title}"`
+            });
+        }
 
         res.status(204).send();
     } catch (error) {

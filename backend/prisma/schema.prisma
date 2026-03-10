@@ -39,6 +39,37 @@ enum NotificationType {
   SPRINT_ENDED
 }
 
+enum ActivityType {
+  CARD_MOVED
+  CARD_CREATED
+  CARD_UPDATED
+  CARD_DELETED
+  COMMENT_ADDED
+  SPRINT_STARTED
+  SPRINT_ENDED
+  SPRINT_ARCHIVED
+  TEAM_JOINED
+  TEAM_LEFT
+}
+
+model Activity {
+  id          String       @id @default(uuid())
+  type        ActivityType
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  teamId      String
+  team        Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  cardId      String?
+  card        Card?        @relation(fields: [cardId], references: [id], onDelete: SetNull)
+  description String
+  metadata    Json?        // Additional data like oldColumn/newColumn for moves
+  createdAt   DateTime     @default(now())
+
+  @@index([teamId, createdAt])
+  @@index([userId, createdAt])
+  @@map("activities")
+}
+
 model User {
   id            String               @id @default(uuid())
   name          String
@@ -53,6 +84,7 @@ model User {
   resetTokens   PasswordResetToken[]
   notifications Notification[]
   attachments   Attachment[]
+  activities    Activity[]
   createdAt     DateTime             @default(now())
 }
 
@@ -100,6 +132,7 @@ model Team {
   cards            Card[]
   sprints          Sprint[]
   webhooks         Webhook[]
+  activities       Activity[]
   createdAt        DateTime     @default(now())
 }
 
@@ -168,6 +201,7 @@ model Card {
   blockedBy     CardDependency[]    @relation("blocked")
   blocking      CardDependency[]    @relation("blocker")
   columnHistory CardColumnHistory[]
+  activities    Activity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

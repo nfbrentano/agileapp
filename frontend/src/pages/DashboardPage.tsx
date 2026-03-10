@@ -25,11 +25,13 @@ interface Team {
 
 const DashboardPage: React.FC = () => {
     const [teams, setTeams] = useState<Team[]>([]);
+    const [activities, setActivities] = useState<any[]>([]);
     const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         fetchTeams();
+        fetchActivities();
     }, []);
 
     const fetchTeams = async () => {
@@ -40,6 +42,15 @@ const DashboardPage: React.FC = () => {
             console.error('Erro ao carregar times', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchActivities = async () => {
+        try {
+            const response = await api.get('/activities/my?limit=10');
+            setActivities(response.data);
+        } catch (error) {
+            console.error('Erro ao carregar atividades', error);
         }
     };
 
@@ -169,23 +180,39 @@ const DashboardPage: React.FC = () => {
                 <div className="space-y-6">
                     <h2 className="text-xl font-black text-slate-900 tracking-tight px-2">Recent Activity</h2>
                     <div className="bg-white border border-slate-100 rounded-[2.5rem] p-6 shadow-sm divide-y divide-slate-50">
-                        {[
-                            { user: 'Liam Wilson', action: 'moved Task #102 to', target: 'Done', time: '2m ago' },
-                            { user: 'Emma Stone', action: 'commented on', target: 'UX Bug', time: '15m ago' },
-                            { user: 'AgileApp', action: 'auto-archived sprint', target: 'V1.2', time: '1h ago' },
-                        ].map((item, i) => (
-                            <div key={i} className="py-4 first:pt-0 last:pb-0 flex gap-4">
-                                <div className="w-10 h-10 rounded-full bg-slate-100 shrink-0 overflow-hidden">
-                                    <img src={`https://i.pravatar.cc/150?u=${i}`} alt="User" />
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-bold text-slate-900">
-                                        {item.user} <span className="text-slate-400 font-medium">{item.action}</span> <span className="text-[#0ea5e9]">{item.target}</span>
-                                    </p>
-                                    <span className="text-[10px] font-bold text-slate-300 uppercase">{item.time}</span>
-                                </div>
+                        {activities.length === 0 ? (
+                            <div className="py-8 text-center text-slate-400 text-sm">
+                                No recent activity
                             </div>
-                        ))}
+                        ) : (
+                            activities.map((activity, i) => (
+                                <div key={activity.id} className="py-4 first:pt-0 last:pb-0 flex gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-slate-100 shrink-0 overflow-hidden">
+                                        <img 
+                                            src={activity.user?.avatar || `https://i.pravatar.cc/150?u=${activity.userId}`} 
+                                            alt={activity.user?.name || 'User'} 
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-bold text-slate-900">
+                                            {activity.user?.name || 'Someone'} 
+                                            <span className="text-slate-400 font-medium"> {activity.description}</span>
+                                            {activity.card && (
+                                                <span className="text-[#0ea5e9]"> {activity.card.title}</span>
+                                            )}
+                                        </p>
+                                        <span className="text-[10px] font-bold text-slate-300 uppercase">
+                                            {new Date(activity.createdAt).toLocaleDateString('en-US', { 
+                                                month: 'short', 
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
