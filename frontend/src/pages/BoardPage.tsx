@@ -5,6 +5,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import DroppableColumn from '../components/DroppableColumn';
 import CardModal from '../components/CardModal';
+import CreateTaskModal from '../components/CreateTaskModal';
 import NotificationBadge from '../components/NotificationBadge';
 import MetricsDashboard from '../components/MetricsDashboard';
 import WebhookSettings from '../components/WebhookSettings';
@@ -27,6 +28,7 @@ const BoardPage: React.FC = () => {
     const [selectedCard, setSelectedCard] = useState<any | null>(null);
     const [view, setView] = useState<'BOARD' | 'METRICS' | 'SETTINGS' | 'WORKLOAD'>('BOARD');
     const [showOnlyStagnated, setShowOnlyStagnated] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const fetchBoard = useCallback(async () => {
         try {
@@ -100,7 +102,10 @@ const BoardPage: React.FC = () => {
                                 </button>
                             ))}
                         </div>
-                        <button className="px-5 py-2.5 bg-[#0ea5e9] text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 flex items-center gap-2">
+                        <button 
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="px-5 py-2.5 bg-[#0ea5e9] text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-all shadow-lg shadow-sky-500/20 flex items-center gap-2"
+                        >
                             <Plus size={18} />
                             Create Task
                         </button>
@@ -184,6 +189,14 @@ const BoardPage: React.FC = () => {
                         onUpdate={() => fetchBoard()}
                     />
                 )}
+
+                <CreateTaskModal
+                    isOpen={isCreateModalOpen}
+                    onClose={() => setIsCreateModalOpen(false)}
+                    teamId={team?.id || ''}
+                    columns={team?.columns || []}
+                    onSuccess={fetchBoard}
+                />
             </div>
         </DndProvider>
     );
