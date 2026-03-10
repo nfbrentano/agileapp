@@ -8,7 +8,8 @@ import {
     MoreVertical,
     TrendingUp,
     CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    Layout
 } from 'lucide-react';
 import api from '../services/api';
 import TeamModal from '../components/TeamModal';
@@ -128,18 +129,30 @@ const DashboardPage: React.FC = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.05 }}
                                 key={team.id}
-                                className="p-5 bg-white border border-slate-100 rounded-3xl hover:border-sky-200 transition-all group cursor-pointer"
-                                onClick={() => window.location.href = `/teams/${team.id}`}
+                                className="p-5 bg-white border border-slate-100 rounded-3xl hover:border-sky-200 transition-all group"
                             >
                                 <div className="flex justify-between items-start">
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg" style={{ backgroundColor: team.color || '#0ea5e9', boxShadow: `0 8px 16px -4px ${team.color}40` }}>
-                                        {team.name.charAt(0)}
+                                    <Link to={`/team/${team.id}`} className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg" style={{ backgroundColor: team.color || '#0ea5e9', boxShadow: `0 8px 16px -4px ${team.color}40` }}>
+                                            {team.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-slate-900 truncate group-hover:text-[#0ea5e9] transition-colors">{team.name}</h4>
+                                            <p className="text-slate-400 text-sm line-clamp-1">{team.description || 'No description provided.'}</p>
+                                        </div>
+                                    </Link>
+                                    <div className="flex gap-1">
+                                        <Link
+                                            to={`/teams/${team.id}`}
+                                            className="p-2 text-slate-400 hover:text-[#0ea5e9] hover:bg-sky-50 rounded-lg transition-all"
+                                            title="Open Board"
+                                        >
+                                            <Layout size={18} />
+                                        </Link>
+                                        <button className="p-2 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
+                                            <MoreVertical size={18} />
+                                        </button>
                                     </div>
-                                    <button className="text-slate-300 hover:text-slate-600"><MoreVertical size={18} /></button>
-                                </div>
-                                <div className="mt-4 space-y-1">
-                                    <h4 className="font-black text-slate-900 truncate group-hover:text-[#0ea5e9] transition-colors">{team.name}</h4>
-                                    <p className="text-slate-400 text-sm line-clamp-1">{team.description || 'No description provided.'}</p>
                                 </div>
                                 <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-50">
                                     <div className="flex -space-x-2">
