@@ -1,7 +1,7 @@
 import {
     X, Clock, Tag, Link as LinkIcon, AlertCircle, CheckCircle2,
     List, Trash2, Plus, Lock, Layout as LayoutIcon, Repeat, BarChart2,
-    Paperclip, ChevronRight, ArrowRight, MessageSquare, History, AlignLeft, CheckSquare, Calendar, User
+    Edit3, Save
 } from 'lucide-react';
 import { attachmentService, type Attachment } from '../services/attachmentService';
 import { dependencyService, type CardDependency } from '../services/dependencyService';
@@ -18,6 +18,20 @@ interface CardModalProps {
 const CardModal: React.FC<CardModalProps> = ({ card, onClose, onUpdate }) => {
     const [attachments, setAttachments] = useState<Attachment[]>([]);
     const [dependencies, setDependencies] = useState<{ blockedBy: CardDependency[], blocking: CardDependency[] }>({ blockedBy: [], blocking: [] });
+    
+    // Edit mode state
+    const [isEditing, setIsEditing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [editData, setEditData] = useState({
+        title: card.title || '',
+        details: card.details || '',
+        requirements: card.requirements || '',
+        outOfScope: card.outOfScope || '',
+        priority: card.priority || 'MEDIUM',
+        tags: card.tags?.join(', ') || '',
+        dueDate: card.dueDate ? new Date(card.dueDate).toISOString().split('T')[0] : '',
+        url: card.url || ''
+    });
 
     React.useEffect(() => {
         fetchAttachments();
@@ -42,6 +56,43 @@ const CardModal: React.FC<CardModalProps> = ({ card, onClose, onUpdate }) => {
         }
     };
 
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const tagArray = editData.tags.split(',').map(t => t.trim()).filter(t => t);
+            await api.patch(`/cards/${card.id}`, {
+                title: editData.title,
+                details: editData.details,
+                requirements: editData.requirements,
+                outOfScope: editData.outOfScope,
+                priority: editData.priority,
+                tags: tagArray,
+                dueDate: editData.dueDate || null,
+                url: editData.url
+            });
+            onUpdate();
+            setIsEditing(false);
+        } catch (err) {
+            alert('Erro ao salvar alterações');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleCancel = () => {
+        setEditData({
+            title: card.title || '',
+            details: card.details || '',
+            requirements: card.requirements || '',
+            outOfScope: card.outOfScope || '',
+            priority: card.priority || 'MEDIUM',
+            tags: card.tags?.join(', ') || '',
+            dueDate: card.dueDate ? new Date(card.dueDate).toISOString().split('T')[0] : '',
+            url: card.url || ''
+        });
+        setIsEditing(false);
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div className="bg-[#1e293b] w-full max-w-4xl max-h-[90vh] rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex flex-col">
@@ -50,16 +101,69 @@ const CardModal: React.FC<CardModalProps> = ({ card, onClose, onUpdate }) => {
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                             <span className="text-xs font-bold text-primary-400 uppercase tracking-widest">Atividade #{card.id.slice(0, 6)}</span>
-                            <div className={`px-2 py-0.5 rounded text-[10px] font-bold ${card.priority === 'CRITICAL' ? 'bg-red-500/10 text-red-500' : 'bg-slate-700/50 text-slate-400'
-                                }`}>
-                                {card.priority}
-                            </div>
+                            {isEditing ? (
+                                <select
+                                    value={editData.priority}
+                                    onChange={(e) => setEditData({...editData, priority: e.target.value})}
+                                    className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-white border border-white/10 outline-none"
+                                >
+                                    <option value="LOW">LOW</option>
+                                    <option value="MEDIUM">MEDIUM</option>
+                                    <option value="HIGH">HIGH</option>
+                                    <option value="CRITICAL">CRITICAL</option>
+                                </select>
+                            ) : (
+                                <div className={`px-2 py-0.5 rounded text-[10px] font-bold ${card.priority === 'CRITICAL' ? 'bg-red-500/10 text-red-500' : 'bg-slate-700/50 text-slate-400'
+                                    }`}>
+                                    {card.priority}
+                                </div>
+                            )}
                         </div>
-                        <h2 className="text-2xl font-bold text-white leading-tight">{card.title}</h2>
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                value={editData.title}
+                                onChange={(e) => setEditData({...editData, title: e.target.value})}
+                                className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-xl font-bold text-white leading-tight outline-none focus:border-primary-500"
+                                placeholder="Task title..."
+                            />
+                        ) : (
+                            <h2 className="text-2xl font-bold text-white leading-tight">{card.title}</h2>
+                        )}
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
-                        <X size={24} className="text-slate-400" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {isEditing ? (
+                            <>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={isSaving}
+                                    className="p-2 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-full transition-colors"
+                                    title="Save"
+                                >
+                                    <Save size={20} />
+                                </button>
+                                <button
+                                    onClick={handleCancel}
+                                    disabled={isSaving}
+                                    className="p-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-full transition-colors"
+                                    title="Cancel"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="p-2 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white rounded-full transition-colors"
+                                title="Edit"
+                            >
+                                <Edit3 size={20} />
+                            </button>
+                        )}
+                        <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                            <X size={24} className="text-slate-400" />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex-1 flex overflow-hidden">
@@ -69,9 +173,19 @@ const CardModal: React.FC<CardModalProps> = ({ card, onClose, onUpdate }) => {
                             <h3 className="flex items-center gap-2 text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">
                                 <List size={16} /> Detalhes da Atividade
                             </h3>
-                            <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
-                                {card.details || 'Nenhuma descrição detalhada fornecida.'}
-                            </div>
+                            {isEditing ? (
+                                <textarea
+                                    value={editData.details}
+                                    onChange={(e) => setEditData({...editData, details: e.target.value})}
+                                    placeholder="Add task description..."
+                                    rows={5}
+                                    className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-4 py-3 text-slate-300 text-sm leading-relaxed outline-none focus:border-primary-500 resize-none"
+                                />
+                            ) : (
+                                <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
+                                    {card.details || 'Nenhuma descrição detalhada fornecida.'}
+                                </div>
+                            )}
                         </section>
 
                         <div className="grid grid-cols-2 gap-8">
@@ -79,22 +193,42 @@ const CardModal: React.FC<CardModalProps> = ({ card, onClose, onUpdate }) => {
                                 <h3 className="flex items-center gap-2 text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">
                                     <CheckCircle2 size={16} /> Requisitos
                                 </h3>
-                                <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 text-slate-300 text-sm">
-                                    <ul className="list-disc list-inside space-y-2">
-                                        {card.requirements ? card.requirements.split('\n').map((line: string, i: number) => (
-                                            <li key={i}>{line}</li>
-                                        )) : <li>Nenhum requisito listado.</li>}
-                                    </ul>
-                                </div>
+                                {isEditing ? (
+                                    <textarea
+                                        value={editData.requirements}
+                                        onChange={(e) => setEditData({...editData, requirements: e.target.value})}
+                                        placeholder="Add requirements (one per line)..."
+                                        rows={5}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-4 py-3 text-slate-300 text-sm leading-relaxed outline-none focus:border-primary-500 resize-none"
+                                    />
+                                ) : (
+                                    <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 text-slate-300 text-sm">
+                                        <ul className="list-disc list-inside space-y-2">
+                                            {card.requirements ? card.requirements.split('\n').map((line: string, i: number) => (
+                                                <li key={i}>{line}</li>
+                                            )) : <li>Nenhum requisito listado.</li>}
+                                        </ul>
+                                    </div>
+                                )}
                             </section>
 
                             <section>
                                 <h3 className="flex items-center gap-2 text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">
                                     <AlertCircle size={16} /> O que NÃO inclui
                                 </h3>
-                                <div className="bg-red-500/5 p-6 rounded-2xl border border-red-500/10 text-slate-300 text-sm italic">
-                                    {card.outOfScope || 'Não definido.'}
-                                </div>
+                                {isEditing ? (
+                                    <textarea
+                                        value={editData.outOfScope}
+                                        onChange={(e) => setEditData({...editData, outOfScope: e.target.value})}
+                                        placeholder="Define what is out of scope..."
+                                        rows={5}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-4 py-3 text-slate-300 text-sm leading-relaxed outline-none focus:border-primary-500 resize-none"
+                                    />
+                                ) : (
+                                    <div className="bg-red-500/5 p-6 rounded-2xl border border-red-500/10 text-slate-300 text-sm italic">
+                                        {card.outOfScope || 'Não definido.'}
+                                    </div>
+                                )}
                             </section>
                         </div>
 
@@ -241,10 +375,19 @@ const CardModal: React.FC<CardModalProps> = ({ card, onClose, onUpdate }) => {
 
                             <div>
                                 <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Data de Entrega</span>
-                                <div className="flex items-center gap-3 p-3 bg-slate-900/40 rounded-xl border border-white/5 text-slate-300">
-                                    <Clock size={16} className="text-slate-500" />
-                                    <span className="text-sm font-medium">{card.dueDate ? new Date(card.dueDate).toLocaleDateString() : 'A definir'}</span>
-                                </div>
+                                {isEditing ? (
+                                    <input
+                                        type="date"
+                                        value={editData.dueDate}
+                                        onChange={(e) => setEditData({...editData, dueDate: e.target.value})}
+                                        className="w-full bg-slate-900/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-slate-300 outline-none focus:border-primary-500"
+                                    />
+                                ) : (
+                                    <div className="flex items-center gap-3 p-3 bg-slate-900/40 rounded-xl border border-white/5 text-slate-300">
+                                        <Clock size={16} className="text-slate-500" />
+                                        <span className="text-sm font-medium">{card.dueDate ? new Date(card.dueDate).toLocaleDateString() : 'A definir'}</span>
+                                    </div>
+                                )}
                             </div>
 
                             <div>
@@ -322,22 +465,42 @@ const CardModal: React.FC<CardModalProps> = ({ card, onClose, onUpdate }) => {
 
                             <div>
                                 <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Labels</span>
-                                <div className="flex flex-wrap gap-2">
-                                    {card.tags?.map((tag: string) => (
-                                        <span key={tag} className="px-3 py-1 bg-primary-500/10 text-primary-400 rounded-lg text-[10px] font-bold border border-primary-500/20">{tag}</span>
-                                    ))}
-                                    <button className="p-1 text-slate-600 hover:text-white transition-colors">
-                                        <Plus size={16} />
-                                    </button>
-                                </div>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={editData.tags}
+                                        onChange={(e) => setEditData({...editData, tags: e.target.value})}
+                                        placeholder="bug, feature, urgent (comma separated)"
+                                        className="w-full bg-slate-900/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-slate-300 outline-none focus:border-primary-500"
+                                    />
+                                ) : (
+                                    <div className="flex flex-wrap gap-2">
+                                        {card.tags?.map((tag: string) => (
+                                            <span key={tag} className="px-3 py-1 bg-primary-500/10 text-primary-400 rounded-lg text-[10px] font-bold border border-primary-500/20">{tag}</span>
+                                        ))}
+                                        <button className="p-1 text-slate-600 hover:text-white transition-colors">
+                                            <Plus size={16} />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             <div>
                                 <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Links Úteis</span>
-                                <a href={card.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-3 bg-slate-900/40 rounded-xl border border-white/5 text-primary-400 hover:bg-primary-500/5 transition-all truncate text-sm">
-                                    <LinkIcon size={14} />
-                                    {card.url || 'Nenhum link associado'}
-                                </a>
+                                {isEditing ? (
+                                    <input
+                                        type="url"
+                                        value={editData.url}
+                                        onChange={(e) => setEditData({...editData, url: e.target.value})}
+                                        placeholder="https://..."
+                                        className="w-full bg-slate-900/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-slate-300 outline-none focus:border-primary-500"
+                                    />
+                                ) : (
+                                    <a href={card.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 p-3 bg-slate-900/40 rounded-xl border border-white/5 text-primary-400 hover:bg-primary-500/5 transition-all truncate text-sm">
+                                        <LinkIcon size={14} />
+                                        {card.url || 'Nenhum link associado'}
+                                    </a>
+                                )}
                             </div>
 
                             <div className="pt-4 border-t border-white/5">
