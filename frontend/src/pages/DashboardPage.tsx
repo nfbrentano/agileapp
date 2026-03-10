@@ -12,6 +12,7 @@ import {
     Layout
 } from 'lucide-react';
 import api from '../services/api';
+import { dashboardService, DashboardStats } from '../services/dashboard.service';
 import TeamModal from '../components/TeamModal';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -25,41 +26,42 @@ interface Team {
 }
 
 const DashboardPage: React.FC = () => {
-    const [teams, setTeams] = useState<Team[]>([]);
+    const [teams, setTeams] = useState<any[]>([]);
     const [activities, setActivities] = useState<any[]>([]);
+    const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
     const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetchTeams();
-        fetchActivities();
+        fetchDashboardData();
     }, []);
 
-    const fetchTeams = async () => {
+    const fetchDashboardData = async () => {
         try {
-            const response = await api.get('/teams');
-            setTeams(response.data);
+            const [statsData] = await Promise.all([
+                dashboardService.getDashboardStats()
+            ]);
+            
+            setDashboardStats(statsData);
+            setTeams(statsData.teams);
+            setActivities(statsData.recentActivities);
         } catch (error) {
-            console.error('Erro ao carregar times', error);
+            console.error('Erro ao carregar dados do dashboard', error);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const fetchActivities = async () => {
-        try {
-            const response = await api.get('/activities/my?limit=10');
-            setActivities(response.data);
-        } catch (error) {
-            console.error('Erro ao carregar atividades', error);
-        }
-    };
-
-    const metrics = [
-        { label: 'Total Projects', value: '12', icon: BarChart3, color: 'text-blue-500', bg: 'bg-blue-50', change: '+2.5%', trend: 'up' },
-        { label: 'Active Sprints', value: '4', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50', change: 'Stable', trend: 'neutral' },
-        { label: 'Team Velocity', value: '48', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50', change: '+12%', trend: 'up' },
-        { label: 'Cycle Time', value: '3.2d', icon: Clock, color: 'text-purple-500', bg: 'bg-purple-50', change: '-0.5d', trend: 'up' },
+    const metrics = dashboardStats ? [
+        { label: 'Total Projects', value: dashboardStats.stats.totalTeams.toString(), icon: BarChart3, color: 'text-blue-500', bg: 'bg-blue-50', change: '+2.5%', trend: 'up' },
+        { label: 'Total Cards', value: dashboardStats.stats.totalCards.toString(), icon: Layout, color: 'text-emerald-500', bg: 'bg-emerald-50', change: 'Stable', trend: 'neutral' },
+        { label: 'Team Members', value: dashboardStats.stats.totalMembers.toString(), icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50', change: '+12%', trend: 'up' },
+        { label: 'My Cards', value: dashboardStats.stats.userCardsCount.toString(), icon: CheckCircle2, color: 'text-purple-500', bg: 'bg-purple-50', change: 'Active', trend: 'up' },
+    ] : [
+        { label: 'Total Projects', value: '0', icon: BarChart3, color: 'text-blue-500', bg: 'bg-blue-50', change: '+2.5%', trend: 'up' },
+        { label: 'Total Cards', value: '0', icon: Layout, color: 'text-emerald-500', bg: 'bg-emerald-50', change: 'Stable', trend: 'neutral' },
+        { label: 'Team Members', value: '0', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50', change: '+12%', trend: 'up' },
+        { label: 'My Cards', value: '0', icon: CheckCircle2, color: 'text-purple-500', bg: 'bg-purple-50', change: 'Active', trend: 'up' },
     ];
 
     return (
@@ -167,7 +169,7 @@ const DashboardPage: React.FC = () => {
                                     </div>
                                     <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                                         <CheckCircle2 size={12} className="text-emerald-500" />
-                                        12/15 Tasks
+                                        {team.completedCards || 0}/{team.cardCount || 0} Tasks
                                     </div>
                                 </div>
                             </motion.div>
@@ -210,8 +212,8 @@ const DashboardPage: React.FC = () => {
                                         <p className="text-sm font-bold text-slate-900">
                                             {activity.user?.name || 'Someone'} 
                                             <span className="text-slate-400 font-medium"> {activity.description}</span>
-                                            {activity.card && (
-                                                <span className="text-[#0ea5e9]"> {activity.card.title}</span>
+                                            {activity.metadata?.cardTitle && (
+                                                <span className="text-[#0ea5e9]"> {activity.metadata.cardTitle}</span>
                                             )}
                                         </p>
                                         <span className="text-[10px] font-bold text-slate-300 uppercase">
@@ -233,7 +235,7 @@ const DashboardPage: React.FC = () => {
             <TeamModal
                 isOpen={isTeamModalOpen}
                 onClose={() => setIsTeamModalOpen(false)}
-                onSuccess={fetchTeams}
+                onSuccess={fetchDashboardData}
             />
         </div>
     );
