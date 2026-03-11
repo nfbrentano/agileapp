@@ -13,8 +13,7 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
     hmr: {
-      clientPort: 3000,
-      host: 'localhost',
+      clientPort: 3000
     },
     watch: {
       ignored: ['**/node_modules/**']

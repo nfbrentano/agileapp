@@ -42,7 +42,7 @@ services:
   web:
     build: ./frontend
     environment:
-      - VITE_API_URL=http://localhost:3001
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3001}
     ports:
       - "3000:3000"
     depends_on:
