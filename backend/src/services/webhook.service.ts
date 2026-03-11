@@ -34,13 +34,12 @@ export class WebhookService {
      * Dispatches a webhook event to all active webhooks for a team.
      */
     static async dispatch(teamId: string, event: WebhookEvent, actorId: string | undefined, data: any) {
-        // Fetch webhooks first to see if we even need to fetch user data
-        const webhooks = await (prisma as any).webhook.findMany({
+        const webhooks = await prisma.webhook.findMany({
             where: {
                 teamId,
                 active: true,
                 events: {
-                    has: event
+                    array_contains: event
                 }
             }
         });
@@ -106,15 +105,14 @@ export class WebhookService {
             const duration = Date.now() - startTime;
 
             // Log successful delivery
-            await (prisma as any).webhookDelivery.create({
+            await prisma.webhookLog.create({
                 data: {
                     webhookId: webhook.id,
                     event: payload.event,
                     payload: payload as any,
-                    statusCode: response.status,
+                    responseStatus: response.status,
                     success: true,
-                    duration,
-                    attemptCount: attempt
+                    duration
                 }
             });
 
@@ -125,16 +123,15 @@ export class WebhookService {
             const errorMessage = error.message;
 
             // Log failed delivery
-            await (prisma as any).webhookDelivery.create({
+            await prisma.webhookLog.create({
                 data: {
                     webhookId: webhook.id,
                     event: payload.event,
                     payload: payload as any,
-                    statusCode: statusCode || null,
+                    responseStatus: statusCode || null,
                     success: false,
                     duration,
-                    error: errorMessage,
-                    attemptCount: attempt
+                    error: errorMessage
                 }
             });
 
