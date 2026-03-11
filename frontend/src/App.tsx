@@ -49,6 +49,8 @@ function App() {
         />
         <Route path="/dashbaord" element={<Navigate to="/dashboard" replace />} />
 
+        <Route path="/team" element={<Navigate to="/projects" replace />} />
+
         <Route
           path="/team/:id"
           element={
