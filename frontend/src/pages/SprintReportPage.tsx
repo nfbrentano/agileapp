@@ -61,7 +61,7 @@ const SprintReportPage: React.FC = () => {
                 {/* Header */}
                 <header className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
-                        <Link to={`/teams/${report.sprint.teamId}/board`} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
+                        <Link to={`/teams/${report.sprint.teamId}`} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
                             <ChevronLeft size={20} />
                         </Link>
                         <div>

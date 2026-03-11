@@ -219,7 +219,7 @@ const TeamPage: React.FC = () => {
                             </div>
                         </div>
                         <Link
-                            to={`/board/${id}`}
+                            to={`/teams/${id}`}
                             className="px-4 py-2 bg-[#0ea5e9] text-white rounded-xl font-bold text-sm hover:bg-sky-600 transition-all flex items-center gap-2"
                         >
                             <Layout size={18} />
@@ -332,7 +332,7 @@ const TeamPage: React.FC = () => {
                             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                                 <h2 className="text-lg font-bold text-slate-900">Recent Sprints</h2>
                                 <Link
-                                    to={`/board/${id}?view=sprints`}
+                                    to={`/teams/${id}?view=sprints`}
                                     className="text-sm font-medium text-[#0ea5e9] hover:text-sky-600"
                                 >
                                     View all
