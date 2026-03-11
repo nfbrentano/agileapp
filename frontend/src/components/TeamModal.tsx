@@ -40,6 +40,7 @@ const TeamModal: React.FC<TeamModalProps> = ({ isOpen, onClose, onSuccess }) => 
                 color
             });
             onSuccess(response.data);
+            onClose();
         } catch (err: any) {
             setError(err.response?.data?.error || 'Erro ao criar time');
         } finally {
