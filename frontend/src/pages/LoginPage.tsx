@@ -42,11 +42,11 @@ const LoginPage: React.FC = () => {
 
     console.log('Rendering LoginPage');
     return (
-        <div className="min-h-screen flex bg-white">
-            {/* Left Side: Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-24 bg-white">
-                <div className="w-full max-w-md space-y-12">
-                    <div className="flex items-center gap-3">
+        <div className="min-h-screen flex bg-white justify-center items-center">
+            {/* Form Container */}
+            <div className="w-full max-w-md p-8 lg:p-12 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100">
+                <div className="space-y-12">
+                    <div className="flex items-center gap-3 justify-center">
                         <div className="w-10 h-10 bg-[#0ea5e9] rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/20">
                             <svg className="w-6 h-6 text-white text-3xl font-bold fill-white" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M4 6.5C4 5.11929 5.11929 4 6.5 4H17.5C18.8807 4 20 5.11929 20 6.5V17.5C20 18.8807 18.8807 20 17.5 20H6.5C5.11929 20 4 18.8807 4 17.5V6.5Z" />
@@ -57,7 +57,7 @@ const LoginPage: React.FC = () => {
                         <span className="text-2xl font-bold text-slate-900 tracking-tight">AgileApp</span>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-4 text-center">
                         <h1 className="text-4xl font-black text-slate-900 tracking-tight">Welcome back</h1>
                         <p className="text-slate-500 text-lg">Log in to manage your agile projects efficiently</p>
                     </div>
@@ -148,46 +148,6 @@ const LoginPage: React.FC = () => {
                     <p className="text-center text-slate-500 text-sm font-medium">
                         Don't have an account? <Link to="/register" className="text-sky-500 font-bold hover:underline">Start your 14-day free trial</Link>
                     </p>
-                </div>
-            </div>
-
-            {/* Right Side: Visual */}
-            <div className="hidden lg:flex lg:w-1/2 bg-[#f0f9ff] flex-col items-center justify-center p-24 relative overflow-hidden">
-                <div className="absolute inset-0 bg-grid-slate-200/50 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]" />
-
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    className="relative z-10 w-full max-w-lg aspect-square bg-white rounded-[2.5rem] p-4 shadow-2xl shadow-sky-900/10 border border-white"
-                >
-                    <img
-                        src="/artifacts/login_marketing_image.png"
-                        alt="Marketing Visual"
-                        className="w-full h-full object-cover rounded-[2rem]"
-                    />
-                </motion.div>
-
-                <div className="relative z-10 mt-16 text-center space-y-6 max-w-md">
-                    <h2 className="text-4xl font-black text-slate-900 leading-tight">Streamline your workflow</h2>
-                    <p className="text-slate-500 text-lg leading-relaxed">
-                        Join over 10,000+ teams who use AgileApp to ship products faster and more efficiently than ever before.
-                    </p>
-
-                    <div className="grid grid-cols-3 gap-8 pt-8 border-t border-slate-200">
-                        <div>
-                            <div className="text-2xl font-black text-slate-900">99%</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Uptime</div>
-                        </div>
-                        <div className="border-x border-slate-200 px-8">
-                            <div className="text-2xl font-black text-slate-900">24/7</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Support</div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-black text-slate-900">AES-256</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Security</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
