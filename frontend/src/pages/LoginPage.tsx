@@ -40,6 +40,7 @@ const LoginPage: React.FC = () => {
         window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/${provider}`;
     };
 
+    console.log('Rendering LoginPage');
     return (
         <div className="min-h-screen flex bg-white">
             {/* Left Side: Form */}
