@@ -39,6 +39,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/dashbaord" element={<Navigate to="/dashboard" replace />} />
 
         <Route
           path="/team/:id"
