@@ -17,7 +17,7 @@ export default defineConfig({
       host: 'localhost',
     },
     watch: {
-      usePolling: true,
+      ignored: ['**/node_modules/**']
     },
   },
 })
