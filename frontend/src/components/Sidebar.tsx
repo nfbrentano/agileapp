@@ -7,6 +7,7 @@ import {
     ListTodo,
     PieChart,
     Zap,
+    LogOut,
 } from 'lucide-react';
 import api from '../services/api';
 import { authService } from '../services/authService';
@@ -128,8 +129,16 @@ const Sidebar: React.FC = () => {
                         <p className="text-sm font-bold text-slate-900 truncate">{user.name || 'Alex Morgan'}</p>
                         <p className="text-[10px] font-medium text-slate-400 truncate">{user.role || 'Pro Plan'}</p>
                     </div>
-                    <button className="text-slate-400 hover:text-slate-600">
-                        <Settings size={18} />
+                    <button 
+                        onClick={() => {
+                            authService.logout().then(() => {
+                                window.location.href = '/login';
+                            });
+                        }}
+                        className="text-slate-400 hover:text-red-500 transition-colors"
+                        title="Logout"
+                    >
+                        <LogOut size={18} />
                     </button>
                 </div>
             </div>
