@@ -57,6 +57,36 @@ docker-compose up -d
 
 ---
 
+## 🗺️ Mapa de Documentação
+
+Para facilitar a navegação e o entendimento por desenvolvedores e IAs, o projeto possui documentações localizadas em cada diretório chave:
+
+### ⚙️ Configuração e Infraestrutura
+*   **[ENV_GUIDE.md](./ENV_GUIDE.md)**: Guia completo de variáveis de ambiente e segredos.
+*   **[DOCKER_GUIDE.md](./DOCKER_GUIDE.md)**: Detalhes da arquitetura de containers e persistência.
+*   **[INSTALLATION.md](./INSTALLATION.md)**: Passo a passo para setup do ambiente.
+*   **[BUSINESS_RULES.md](./BUSINESS_RULES.md)**: Regras de negócio globais do sistema.
+
+### 🧠 Backend (`/backend`)
+*   **[Prisma Schema](./backend/prisma/README.md)**: Modelagem de dados, relações e enums (Essencial para IA).
+*   **[Controllers](./backend/src/controllers/README.md)**: Padrões de requisição, códigos de erro e side-effects.
+*   **[Services](./backend/src/services/README.md)**: Lógica de negócio, webhooks e detecção de estagnação.
+*   **[Routes](./backend/src/routes/README.md)**: Mapa da API REST e padrões de segurança.
+*   **[Jobs](./backend/src/jobs/README.md)**: Cronogramas de tarefas em segundo plano (Recorrência, Métricas).
+*   **[Middlewares](./backend/src/middlewares/README.md)**: Fluxos de autenticação e validação.
+*   **[Config](./backend/src/config/README.md)**: Configurações de terceiros (Passport, S3).
+
+### 🎨 Frontend (`/frontend`)
+*   **[Public Assets](./frontend/public/README.md)**: Gestão de arquivos estáticos e marketing.
+*   **[Components](./frontend/src/components/README.md)**: Biblioteca de componentes UI reutilizáveis.
+*   **[Pages](./frontend/src/pages/README.md)**: Estrutura de rotas e visões da aplicação.
+*   **[Services](./frontend/src/services/README.md)**: Integração com a API e gerenciamento de estado.
+*   **[Layouts](./frontend/src/layouts/README.md)**: Estruturas de grid e navegação global.
+*   **[Assets](./frontend/src/assets/README.md)**: Ícones e estilos processados pelo Vite.
+*   **[Hooks](./frontend/src/hooks/README.md)**: Lógica reativa customizada.
+
+---
+
 ## 📘 Documentação Adicional
 
 Para detalhes técnicos específicos, consulte:
