@@ -91,7 +91,7 @@ Para facilitar a navegação e o entendimento por desenvolvedores e IAs, o proje
 
 Para detalhes técnicos específicos, consulte:
 *   [BUSINESS_RULES.md](./BUSINESS_RULES.md) - Mapeamento de regras de negócio por pasta.
-*   [walkthrough.md](./backend/docs/walkthrough.md) - Guia passo a passo das funcionalidades.
+*   [WALKTHROUGH.md](./docs/WALKTHROUGH.md) - Guia passo a passo das funcionalidades.
 
 ---
 *AgileApp - Engineered for Speed, Built for Reliability.*
